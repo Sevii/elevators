@@ -33,9 +33,7 @@ class Elevator():
     id: int 
     location: int
     destination: int = 0
-    speed: float = 3.0
     capacity: int = 10
-    floors_list: List[int] = field(default_factory=list)
     has_destination: bool = False
     caller: Person = None
 
@@ -54,36 +52,59 @@ def generatePerson(building: Building) -> Person:
         elevator = None
     )
 
+def elevatorHasCapacity(people, elevator):
+    return  len(list(filter(lambda person: person.elevator == elevator.id and not person.arrived, people))) < elevator.capacity
+
 
 @click.command()
 @click.option('--minutes', default=50, help='Number of minutes')
 @click.option('--floors', default=20, help='Number of floors')
-def main(minutes, floors):
-    elevator = Elevator(id=0, location=0, floors_list = [range(floors)])
+@click.option('--start_people', default=0, help='Number of floors')
+@click.option('--max_people', default=20, help='Number of floors')
+def main(minutes, floors, start_people, max_people):
+    elevator = Elevator(id=0, location=0)
     building = Building(floors = floors)
     print(elevator)
 
     # generate starter people
-    people = [generatePerson(building) for _ in range(5)]
-    totalPeople = len(people)
+    if start_people > 0:
+        people = [generatePerson(building) for _ in range(start_people)]
+        totalPeople = len(people)
+    else:
+        totalPeople = 0
+        people = []
 
     for lp in range(minutes):
         print("Starting turn {} ".format(lp))
 
         #generate people
-        # for p in [generatePerson(building) for _ in range(2)]:
-        #     people.append(p)
-        #     totalPeople = totalPeople + 1
+        if totalPeople < max_people:
+            maxToMake = max_people - totalPeople
+            makeXPeople = random.randint(0, maxToMake) 
+            print("make x {} ".format(makeXPeople))
+            print("total x {} ".format(totalPeople))
+            print("max x {} ".format(max_people))
+
+            for p in [generatePerson(building) for _ in range(makeXPeople)]:
+                people.append(p)
+                totalPeople = totalPeople + 1
 
         
 
         # Elevator
 
         inhabitants = list(filter(lambda person: person.elevator == elevator.id and not person.arrived, people))
+        activePeople = list(filter(lambda person: not person.arrived, people))
 
-        if len(inhabitants) == 0 or elevator.has_destination == False:
+        if len(inhabitants) == elevator.capacity and elevator.has_destination == True:
+            # to bad for the caller
+            oldest = max(inhabitants, key=lambda x: x.age)
+            print(oldest)
+            elevator.destination = oldest.destination
+
+        elif len(inhabitants) == 0 or elevator.has_destination == False:
             #find oldest person
-            activePeople = list(filter(lambda person: not person.arrived, people))
+            
             if len(activePeople) > 0:
                 oldest = max(activePeople, key=lambda x: x.age)
                 print(oldest)
@@ -138,16 +159,18 @@ def main(minutes, floors):
                             #going up
                             if elevator.destination > elevator.location or not elevator.has_destination:
                                 #elevator also going up, add person to elevator
-                                p.elevator = elevator.id
-                                p.inElevator = True
-                                print("Picked someone up!")
+                                if elevatorHasCapacity(people, elevator):
+                                    p.elevator = elevator.id
+                                    p.inElevator = True
+                                    print("Picked someone up!")
                         if p.destination < p.location:
                             #going down
                             if elevator.destination < elevator.location or not elevator.has_destination:
                                 #elevator also going down, add person to elevator
-                                p.elevator = elevator.id
-                                p.inElevator = True
-                                print("Picked someone up!")
+                                if elevatorHasCapacity(people, elevator):
+                                    p.elevator = elevator.id
+                                    p.inElevator = True
+                                    print("Picked someone up!")
 
 
             # the elevator can drop people off, if it does it will stop for one minutes (aka a turn)
@@ -174,6 +197,7 @@ def main(minutes, floors):
 
     print("Simulation finished -------------------------------------------------")    
     print("Floors in sim: {}".format(floors))
+    print("Minutes in sim: {}".format(minutes))
     print("Total people {} ".format(totalPeople))
 
     peopleStillInTransit = list(filter(lambda person: not person.arrived, people))   
@@ -184,11 +208,13 @@ def main(minutes, floors):
     print("People delivered {} ".format(peopleDeliveredCount))
     if len(ages) > 0:
         print("Average age of undelivered people {} ".format(statistics.mean(ages)))
+    else:
+        print ("Average age of undelivered people N/A")
     if len(deliveredAges) > 0:
         print("Average age of delivered people {} ".format(statistics.mean(deliveredAges)))
+    else:
+        print ("Average age of delivered people N/A")
 
-    print("Undelivered people {} ".format(ages))
-    print("Mean age of people still in transit {} ".format(ages))
     print("People still in transit {} ".format(len(ages)))
     print("Total people {} ".format(totalPeople))
     

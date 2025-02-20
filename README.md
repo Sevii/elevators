@@ -4,14 +4,6 @@ Simulating elevators
 
 Code Challenge
 
-1. The Elevator
-
-    * Provide code that simulates an elevator. You may use any language (recommend using java or Python).
-    * Please upload your code Git Hub for a discussion during your interview with our team.
-    * Additionally, document all assumptions and any features that weren't implemented.
-    * Please be prepared to discuss the assumptions and features that were not implemented during your interview.
-
-
 
 Simulate skyscraper with elevator system in it. 
     Why - This is more interesting
@@ -40,11 +32,13 @@ Assumptions:
     * Buildings are evenly composed of floors, extra height is dropped.
     * Elevators have constant speed, pretend we averaged it
     * Elevators fit 10 people
+    * Elevators can move up to 5 floors and stop within one turn which is approximately a minute
 
 
 Questions:
     * Do we simulate only people arriving to work or also leaving occasionally? Hotel California?
     * How do we calculate the volume needed by elevators per floor (Do we need this?)
+    * How much utility/accuracy do we lose by using turns? 
 
 Notes: 
     * We will start with 1 elevator, once that is working will continue if warrented.
