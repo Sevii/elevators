@@ -30,8 +30,6 @@ Assumptions:
     * Elevators have constant speed, pretend we averaged it
     * Elevators fit 10 people
     * Elevators can move up to 5 floors and stop within one turn which is approximately a minute
-    * We are not cleaning up entities as we go along even though it would be more efficient. 
-        Note: In load testing this may have been a mistake
 
 
 Questions:
@@ -41,6 +39,8 @@ Questions:
 
 Notes: 
     * We will start with 1 elevator, once that is working will continue if warrented.
+    * We are not cleaning up entities as we go along even though it would be more efficient. 
+    * Note this makes the program cpu bound as the number of people increases very likely due to filter use.
 
 
 1. Pick / Generate building 
@@ -62,6 +62,8 @@ Simulation
 
 `uv run main.py`
 
+`uv run main.py --help`
+
 ### Note we are using uv from https://github.com/astral-sh/uv for experimentation
 
 
@@ -70,7 +72,7 @@ Simulation
 
 
 
-Test buildings 
+Reference buildings 
 
 Burj Khalifa
 height : 829.8m
