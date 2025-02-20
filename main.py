@@ -12,13 +12,15 @@ from typing import List
 import random
 import math
 import statistics
+import time
+
 
 @dataclass
 class Building():
     floors: int
     
 
-@dataclass
+@dataclass(slots=True)
 class Person():
     age: int # in turns aka minutes for now
     destination: int # destination floor
@@ -36,6 +38,7 @@ class Elevator():
     capacity: int = 10
     has_destination: bool = False
     caller: Person = None
+    people_in_elevator: int = 0
 
 
 def generatePerson(building: Building) -> Person:
@@ -43,7 +46,6 @@ def generatePerson(building: Building) -> Person:
     location = random.randint(0, building.floors)
     while(destination == location):
         destination = random.randint(0, building.floors)
-        location = random.randint(0, building.floors)
 
     return Person(
         age=0,  # Start at age 0 since they just entered the simulation
@@ -53,15 +55,16 @@ def generatePerson(building: Building) -> Person:
     )
 
 def elevatorHasCapacity(people, elevator):
-    return  len(list(filter(lambda person: person.elevator == elevator.id and not person.arrived, people))) < elevator.capacity
-
+    return elevator.people_in_elevator < elevator.capacity
+        
 
 @click.command()
-@click.option('--minutes', default=50, help='Number of minutes')
+@click.option('--minutes', default=2000, help='Number of minutes')
 @click.option('--floors', default=20, help='Number of floors')
-@click.option('--start_people', default=0, help='Number of floors')
-@click.option('--max_people', default=20, help='Number of floors')
+@click.option('--start_people', default=100, help='Number of floors')
+@click.option('--max_people', default=500, help='Number of floors')
 def main(minutes, floors, start_people, max_people):
+    start_time = time.time()
     elevator = Elevator(id=0, location=0)
     building = Building(floors = floors)
     print(elevator)
@@ -81,9 +84,6 @@ def main(minutes, floors, start_people, max_people):
         if totalPeople < max_people:
             maxToMake = max_people - totalPeople
             makeXPeople = random.randint(0, maxToMake) 
-            print("make x {} ".format(makeXPeople))
-            print("total x {} ".format(totalPeople))
-            print("max x {} ".format(max_people))
 
             for p in [generatePerson(building) for _ in range(makeXPeople)]:
                 people.append(p)
@@ -124,7 +124,7 @@ def main(minutes, floors, start_people, max_people):
         elevator_continue = True
         floors_moved = 0
         while(elevator_continue):
-            print("Elevator looping destination {} ".format(elevator.destination))
+            print("Elevator destination {} ".format(elevator.destination))
             print("Elevator on floor {} ".format(elevator.location))
             if elevator.destination == elevator.location:
                 elevator_continue = False
@@ -161,6 +161,7 @@ def main(minutes, floors, start_people, max_people):
                                 #elevator also going up, add person to elevator
                                 if elevatorHasCapacity(people, elevator):
                                     p.elevator = elevator.id
+                                    elevator.people_in_elevator += 1
                                     p.inElevator = True
                                     print("Picked someone up!")
                         if p.destination < p.location:
@@ -170,6 +171,7 @@ def main(minutes, floors, start_people, max_people):
                                 if elevatorHasCapacity(people, elevator):
                                     p.elevator = elevator.id
                                     p.inElevator = True
+                                    elevator.people_in_elevator += 1
                                     print("Picked someone up!")
 
 
@@ -181,11 +183,10 @@ def main(minutes, floors, start_people, max_people):
                         print("Dropped someone off!")
                         shouldStop = True
                         person.inElevator = False
-                        print("Dropped someone off!")
                         person.arrived = True
+                        elevator.people_in_elevator -=1
                 elevator_continue = False
                 break;
-
 
 
         #end turn
@@ -197,7 +198,7 @@ def main(minutes, floors, start_people, max_people):
 
     print("Simulation finished -------------------------------------------------")    
     print("Floors in sim: {}".format(floors))
-    print("Minutes in sim: {}".format(minutes))
+    print("Turns in sim: {}".format(minutes))
     print("Total people {} ".format(totalPeople))
 
     peopleStillInTransit = list(filter(lambda person: not person.arrived, people))   
@@ -217,9 +218,7 @@ def main(minutes, floors, start_people, max_people):
 
     print("People still in transit {} ".format(len(ages)))
     print("Total people {} ".format(totalPeople))
-    
-
-
+    print("--- %s seconds ---" % (time.time() - start_time))
 
 
 

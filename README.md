@@ -2,9 +2,6 @@
 Simulating elevators
 
 
-Code Challenge
-
-
 Simulate skyscraper with elevator system in it. 
     Why - This is more interesting
     Goal — simulate how height of building and number of elevators effects travel time through the building
@@ -33,6 +30,8 @@ Assumptions:
     * Elevators have constant speed, pretend we averaged it
     * Elevators fit 10 people
     * Elevators can move up to 5 floors and stop within one turn which is approximately a minute
+    * We are not cleaning up entities as we go along even though it would be more efficient. 
+        Note: In load testing this may have been a mistake
 
 
 Questions:
@@ -48,6 +47,7 @@ Notes:
 2. User picks number of people and distribution
 3. Simulation runs 
 
+
 Simulation 
     function which generates new people who want to go to floors.
         Do we generate all people ahead of time and put them in queue? 
@@ -58,14 +58,14 @@ Simulation
 
 
 
+#How to run the program
+
+`uv run main.py`
+
+### Note we are using uv from https://github.com/astral-sh/uv for experimentation
 
 
-
-
-
-
-
-
+### Note we explored more complicated simulations in the brainstorming phase than we actually implemented.
 
 
 
@@ -89,7 +89,4 @@ stories: 102
 height 380m
 elevators: 58
 speed: 3.55m/s
-
-
-
 
