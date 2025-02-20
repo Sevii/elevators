@@ -54,7 +54,7 @@ def generatePerson(building: Building) -> Person:
         elevator = None
     )
 
-def elevatorHasCapacity(people, elevator):
+def elevatorHasCapacity(elevator):
     return elevator.people_in_elevator < elevator.capacity
         
 
@@ -148,7 +148,7 @@ def main(minutes, floors, start_people, max_people):
             print("inhabitants count {} ".format(len(inhabitants)))
             # If the elevator has room for more people it can stop to pick them up
             # In the real world, elevators don't seem to track capacity annoying people inside
-            if len(inhabitants) < elevator.capacity:
+            if elevatorHasCapacity(elevator):
                 floor_people = list(filter(lambda person: person.location == elevator.location and not person.arrived and not person.inElevator, people))
                 print("floor people count {} ".format(len(floor_people)))
                 if len(floor_people) > 0:
@@ -159,7 +159,7 @@ def main(minutes, floors, start_people, max_people):
                             #going up
                             if elevator.destination > elevator.location or not elevator.has_destination:
                                 #elevator also going up, add person to elevator
-                                if elevatorHasCapacity(people, elevator):
+                                if elevatorHasCapacity(elevator):
                                     p.elevator = elevator.id
                                     elevator.people_in_elevator += 1
                                     p.inElevator = True
@@ -168,7 +168,7 @@ def main(minutes, floors, start_people, max_people):
                             #going down
                             if elevator.destination < elevator.location or not elevator.has_destination:
                                 #elevator also going down, add person to elevator
-                                if elevatorHasCapacity(people, elevator):
+                                if elevatorHasCapacity(elevator):
                                     p.elevator = elevator.id
                                     p.inElevator = True
                                     elevator.people_in_elevator += 1
